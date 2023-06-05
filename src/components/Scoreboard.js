@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import AllUsers from './AllUsers';
 
-function Scoreboard({ onScoreChange, players, setPlayers, scores, setScores, isOut, setIsOut }) {
+function Scoreboard({ onScoreChange, players, setPlayers, scores, setScores, isOut, setIsOut, username }) {
+  const [users, setUsers] = useState([]);
 
   const handleAddPlayer = () => {
     if (players.length < 5) {
@@ -21,6 +24,32 @@ function Scoreboard({ onScoreChange, players, setPlayers, scores, setScores, isO
     setIsOut(updatedIsOut);
   }
 
+  useEffect(()=> {
+    fetchData();
+    players[0] = username;
+    console.log('username:', username);
+  }, [players, username]);
+
+  const fetchData = async () => {
+    try{
+      const response = await axios.get('http://localhost:8000/api/v1/users/get-users');
+      const extractedUsers = response.data.data.extractedUsers;
+      console.log('Users:', extractedUsers);
+      setUsers(extractedUsers);
+    }
+    catch(err){
+      console.log('Error:', err);
+    }
+  }
+
+  useEffect(() => {
+    // This effect will run whenever 'users' array changes
+    console.log('Users have been updated:', users);
+    console.log('Logged In user updated:', username);
+    // You can perform additional logic or actions here
+  }, [users, username]);
+  
+
   return (
     <div className='scoreboard'>
       <h2>Scoreboard</h2>
@@ -40,9 +69,11 @@ function Scoreboard({ onScoreChange, players, setPlayers, scores, setScores, isO
           </div>
         ))}
       </div>
+
       {players.length < 5 && (
         <button onClick={handleAddPlayer}>Add Player</button>
       )}
+      <AllUsers users={users} />
     </div>
   );
 }

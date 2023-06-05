@@ -7,11 +7,17 @@ import Signup from './Signup';
 import Navbar from './Navbar';
 
 function App() {
+  //Book Component state
   let [currentPage, setCurrentPage] = useState(1);
   const [flipped, setFlipped] = useState(false);
-  const [players, setPlayers] = useState(['Player 1', 'Player 2']);
-  let [scores, setScores] = useState([0, 0]);
-  let [isOut, setIsOut] = useState([0, 0]);
+  
+  //Scoreboard component state
+  let [players, setPlayers] = useState(['Player 1']);
+  let [scores, setScores] = useState([0]);
+  let [isOut, setIsOut] = useState([0]);
+
+  //User and its details
+  let [username, setUsername] = useState(null);
 
   const handleFlip = () => {
     const randomPage = Math.floor(Math.random() * 100) + 1;
@@ -60,22 +66,25 @@ function App() {
 
   useEffect(() => {
     console.log('Rerender');
-  }, [scores])
+  }, [scores, username]);
 
   return (
   <div className="App" style={appStyle}>
 
     <Router>
       <div>
-        <Navbar />
+        <Navbar username={username} setUsername={setUsername} />
         <Routes>
           <Route path="/" element={
             <div className='content' style={contentStyle}>
             <Book currentPage={currentPage} flipped={flipped} handleFlip={handleFlip} />
-            <Scoreboard onScoreChange={handleScoreChange} players={players} setPlayers={setPlayers} scores={scores} setScores={setScores} isOut={isOut} setIsOut={setIsOut} style={{ marginLeft: '20px' }} />
+            <Scoreboard onScoreChange={handleScoreChange} players={players} setPlayers={setPlayers} scores={scores} setScores={setScores} isOut={isOut} setIsOut={setIsOut} username={username} style={{ marginLeft: '20px' }} />
           </div>
           }/>
-          <Route path="/login" element={<Login />} />
+
+          {
+            !username && <Route path="/login" element={<Login username={username} setUsername={setUsername} players={players} scores={scores} />} /> 
+          }
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </div>
